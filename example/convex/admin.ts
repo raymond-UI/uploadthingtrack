@@ -1,6 +1,6 @@
 import { action, mutation, query } from "./_generated/server";
 import { components } from "./_generated/api";
-import { UploadThingFiles, accessRuleValidator } from "@convex-dev/uploadthing";
+import { UploadThingFiles, accessRuleValidator } from "@mzedstudio/uploadthingtrack";
 import { v } from "convex/values";
 
 const uploadthing = new UploadThingFiles(components.uploadthingFileTracker);

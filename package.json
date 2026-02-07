@@ -1,5 +1,5 @@
 {
-  "name": "@convex-dev/uploadthing",
+  "name": "@mzedstudio/uploadthingtrack",
   "description": "UploadThing file tracking, access control, and cleanup for Convex.",
   "version": "0.1.0",
   "license": "Apache-2.0",

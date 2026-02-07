@@ -1,5 +1,5 @@
 import { httpRouter } from "convex/server";
-import { registerRoutes } from "@convex-dev/uploadthing";
+import { registerRoutes } from "@mzedstudio/uploadthingtrack";
 import { components } from "./_generated/api";
 
 const http = httpRouter();
