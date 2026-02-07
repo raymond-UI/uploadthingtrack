@@ -103,18 +103,16 @@ export const handleUploadthingCallback = action({
     rawBody: v.string(),
     signature: v.string(),
     hook: v.string(),
+    apiKey: v.optional(v.string()),
   },
   handler: async (ctx, args): Promise<CallbackResult> => {
     const globals = await ctx.runQuery(internal.config.getGlobalsInternal, {});
-    if (!globals.uploadthingApiKey) {
+    const apiKey = args.apiKey ?? globals.uploadthingApiKey;
+    if (!apiKey) {
       throw new Error("UploadThing API key not configured.");
     }
 
-    const isValid = await verifySignature(
-      args.rawBody,
-      args.signature,
-      globals.uploadthingApiKey,
-    );
+    const isValid = await verifySignature(args.rawBody, args.signature, apiKey);
     if (!isValid) {
       return { ok: false, error: "invalid_signature" };
     }

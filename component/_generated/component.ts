@@ -27,7 +27,7 @@ export type ComponentApi<Name extends string | undefined = string | undefined> =
       handleUploadthingCallback: FunctionReference<
         "action",
         "internal",
-        { hook: string; rawBody: string; signature: string },
+        { apiKey?: string; hook: string; rawBody: string; signature: string },
         any,
         Name
       >;
@@ -149,7 +149,7 @@ export type ComponentApi<Name extends string | undefined = string | undefined> =
       handleUploadthingCallback: FunctionReference<
         "action",
         "internal",
-        { hook: string; rawBody: string; signature: string },
+        { apiKey?: string; hook: string; rawBody: string; signature: string },
         any,
         Name
       >;

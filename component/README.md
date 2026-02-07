@@ -46,6 +46,17 @@ await ctx.runMutation(components.uploadthingFileTracker.setConfig, {
 
 UploadThing signs webhook callbacks with an `x-uploadthing-signature` header and a `uploadthing-hook` header. The signature is an HMAC SHA-256 of the request body using your UploadThing API key. The component validates this signature internally. ([UploadThing callbacks](https://docs.uploadthing.com/concepts/route-handlers#handling-callback-requests))
 
+If you'd rather keep the API key only in the Convex deployment environment, you can pass it through
+from your app's HTTP action when calling `handleUploadthingCallback`:
+
+```ts
+const apiKey = process.env.UPLOADTHING_API_KEY!;
+const result = await ctx.runAction(
+  components.uploadthingFileTracker.callbacks.handleUploadthingCallback,
+  { rawBody, signature, hook, apiKey },
+);
+```
+
 Create an HTTP action in your app to forward the request to the component:
 
 ```ts

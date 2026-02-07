@@ -54,7 +54,7 @@ export declare const components: {
       handleUploadthingCallback: FunctionReference<
         "action",
         "internal",
-        { hook: string; rawBody: string; signature: string },
+        { apiKey?: string; hook: string; rawBody: string; signature: string },
         any
       >;
     };
@@ -167,7 +167,7 @@ export declare const components: {
       handleUploadthingCallback: FunctionReference<
         "action",
         "internal",
-        { hook: string; rawBody: string; signature: string },
+        { apiKey?: string; hook: string; rawBody: string; signature: string },
         any
       >;
       listFiles: FunctionReference<

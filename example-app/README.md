@@ -21,7 +21,7 @@ pnpm dev:convex
 
 3. Configure environment variables:
 
-Copy `.env.example` to `.env` and fill in the UploadThing values, then create `.env.local` for Vite:
+Copy `.env.example` to `.env` and fill in the UploadThing values for the Express server, then create `.env.local` for Vite:
 
 `.env`
 ```
@@ -37,6 +37,11 @@ VITE_CONVEX_URL=https://<your-deployment>.convex.cloud
 VITE_UPLOADTHING_URL=http://localhost:3000/api/uploadthing
 ```
 
+4. Add your UploadThing API key to your Convex deployment environment variables:
+
+- Go to the Convex dashboard for your deployment.
+- Add `UPLOADTHING_API_KEY` with the **Secret Key** from the UploadThing dashboard.
+
 4. Start the UploadThing server:
 
 ```bash
@@ -49,9 +54,10 @@ pnpm dev:uploadthing
 pnpm dev
 ```
 
-## Configure the component
+## Configure the component (optional)
 
-Set the UploadThing API key in Convex (run once). This is the API key from the UploadThing dashboard (not the UploadThing token):
+If you want to store the API key in the component's own config (for example to use `getConfig`),
+you can still run:
 
 ```bash
 pnpm exec convex run uploadthing:setUploadthingConfig '{"uploadthingApiKey":"YOUR_UPLOADTHING_SECRET"}'

@@ -403,11 +403,6 @@ describe("uploadthing file tracker", () => {
   test("callback validates signature and stores metadata", async () => {
     const t = makeTest();
 
-    await t.mutation("config:setConfig", {
-      config: { uploadthingApiKey: apiKey },
-      replace: true,
-    });
-
     const payload = makeCallbackPayload();
     const rawBody = JSON.stringify(payload);
 
@@ -415,6 +410,7 @@ describe("uploadthing file tracker", () => {
       rawBody,
       signature: sign(rawBody, apiKey, true),
       hook: "uploadthing-upload-complete",
+      apiKey,
     });
 
     expect(result.ok).toBe(true);
@@ -432,11 +428,6 @@ describe("uploadthing file tracker", () => {
   test("callback accepts signature without prefix", async () => {
     const t = makeTest();
 
-    await t.mutation("config:setConfig", {
-      config: { uploadthingApiKey: apiKey },
-      replace: true,
-    });
-
     const payload = makeCallbackPayload({
       file: { ...makeCallbackPayload().file, key: "cb_key_2" },
     });
@@ -446,6 +437,7 @@ describe("uploadthing file tracker", () => {
       rawBody,
       signature: sign(rawBody, apiKey, false),
       hook: "uploadthing-upload-complete",
+      apiKey,
     });
 
     expect(result.ok).toBe(true);
@@ -454,30 +446,35 @@ describe("uploadthing file tracker", () => {
   test("callback rejects invalid signature", async () => {
     const t = makeTest();
 
-    await t.mutation("config:setConfig", {
-      config: { uploadthingApiKey: apiKey },
-      replace: true,
-    });
-
     const rawBody = JSON.stringify(makeCallbackPayload());
 
     const result = await t.action("callbacks:handleUploadthingCallback", {
       rawBody,
       signature: "hmac-sha256=bad",
       hook: "uploadthing-upload-complete",
+      apiKey,
     });
 
     expect(result.ok).toBe(false);
     expect(result.error).toBe("invalid_signature");
   });
 
-  test("callback requires userId and required fields", async () => {
+  test("callback throws when api key is missing", async () => {
     const t = makeTest();
 
-    await t.mutation("config:setConfig", {
-      config: { uploadthingApiKey: apiKey },
-      replace: true,
-    });
+    const rawBody = JSON.stringify(makeCallbackPayload());
+
+    await expect(
+      t.action("callbacks:handleUploadthingCallback", {
+        rawBody,
+        signature: sign(rawBody, apiKey),
+        hook: "uploadthing-upload-complete",
+      }),
+    ).rejects.toThrow("UploadThing API key not configured.");
+  });
+
+  test("callback requires userId and required fields", async () => {
+    const t = makeTest();
 
     const missingUser = makeCallbackPayload({ metadata: {} });
     const missingUserBody = JSON.stringify(missingUser);
@@ -487,6 +484,7 @@ describe("uploadthing file tracker", () => {
         rawBody: missingUserBody,
         signature: sign(missingUserBody, apiKey),
         hook: "uploadthing-upload-complete",
+        apiKey,
       },
     );
 
@@ -504,6 +502,7 @@ describe("uploadthing file tracker", () => {
         rawBody: missingFieldsBody,
         signature: sign(missingFieldsBody, apiKey),
         hook: "uploadthing-upload-complete",
+        apiKey,
       },
     );
 
@@ -514,11 +513,6 @@ describe("uploadthing file tracker", () => {
   test("callback replaces file when key matches", async () => {
     const t = makeTest();
 
-    await t.mutation("config:setConfig", {
-      config: { uploadthingApiKey: apiKey },
-      replace: true,
-    });
-
     const payload = makeCallbackPayload({
       file: { ...makeCallbackPayload().file, key: "cb_replace" },
     });
@@ -528,6 +522,7 @@ describe("uploadthing file tracker", () => {
       rawBody,
       signature: sign(rawBody, apiKey),
       hook: "uploadthing-upload-complete",
+      apiKey,
     });
 
     const payload2 = makeCallbackPayload({
@@ -543,6 +538,7 @@ describe("uploadthing file tracker", () => {
       rawBody: rawBody2,
       signature: sign(rawBody2, apiKey),
       hook: "uploadthing-upload-complete",
+      apiKey,
     });
 
     const file = await t.query("queries:getFileByKey", {
