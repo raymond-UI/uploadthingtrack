@@ -1,0 +1,16 @@
+{
+  "name": "convex-component-authoring",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "convex": "^1.17.2",
+    "convex-test": "^0.0.41",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.5"
+  }
+}

@@ -1,0 +1,186 @@
+@import url("https://fonts.googleapis.com/css2?family=Fira+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600&display=swap");
+
+:root {
+  color-scheme: light;
+  font-family: "Space Grotesk", system-ui, -apple-system, sans-serif;
+  background: #f5f2ee;
+  color: #1f1b16;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+.app {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+}
+
+header {
+  margin-bottom: 32px;
+}
+
+header h1 {
+  font-size: 2.6rem;
+  margin-bottom: 8px;
+}
+
+header p {
+  margin: 0;
+  max-width: 720px;
+  color: #4b3f32;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 16px 40px rgba(35, 24, 11, 0.08);
+}
+
+.card h2 {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: #5a4a3a;
+}
+
+label input {
+  min-width: 200px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #d7cbbf;
+  background: #faf7f3;
+  font-size: 0.95rem;
+}
+
+label.checkbox {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  padding-top: 20px;
+}
+
+button {
+  border: none;
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  background: #e6dfd5;
+  color: #1f1b16;
+}
+
+button.primary {
+  background: #f26b3a;
+  color: #fff;
+  font-weight: 600;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.file-input {
+  background: #faf7f3;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px dashed #d7cbbf;
+}
+
+.table {
+  display: grid;
+  gap: 8px;
+}
+
+.table-header,
+.table-row {
+  display: grid;
+  grid-template-columns: 1.4fr 1.4fr 1.2fr 0.7fr 1fr 1.2fr;
+  gap: 12px;
+  font-size: 0.9rem;
+}
+
+.table-header {
+  font-weight: 600;
+  color: #5a4a3a;
+  border-bottom: 1px solid #eadfd2;
+  padding-bottom: 8px;
+}
+
+.table-row {
+  padding: 6px 0;
+  border-bottom: 1px solid #f1eae2;
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+.stats {
+  display: flex;
+  gap: 32px;
+}
+
+.stats .label {
+  display: block;
+  font-size: 0.85rem;
+  color: #5a4a3a;
+}
+
+.stats .value {
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.muted {
+  color: #7a6a5a;
+}
+
+.mono {
+  font-family: "Fira Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85rem;
+}
+
+.result {
+  margin-top: 12px;
+  background: #fff5ec;
+  border-radius: 12px;
+  padding: 12px 16px;
+  color: #4b3f32;
+}
+
+code {
+  background: #f1ece6;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-family: "Fira Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+@media (max-width: 900px) {
+  .table-header,
+  .table-row {
+    grid-template-columns: 1fr 1fr;
+    row-gap: 6px;
+  }
+}
