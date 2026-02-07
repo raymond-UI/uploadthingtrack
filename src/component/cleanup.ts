@@ -7,9 +7,18 @@ export const cleanupExpired = action({
     batchSize: v.optional(v.number()),
     dryRun: v.optional(v.boolean()),
   },
-  handler: async (ctx, args) => {
+  returns: v.object({
+    deletedCount: v.number(),
+    keys: v.array(v.string()),
+    hasMore: v.boolean(),
+  }),
+  handler: async (ctx, args): Promise<{
+    deletedCount: number;
+    keys: string[];
+    hasMore: boolean;
+  }> => {
     const globals = await ctx.runQuery(internal.config.getGlobalsInternal, {});
-    const limit = args.batchSize ?? globals.deleteBatchSize ?? 100;
+    const limit = args.batchSize ?? (globals as any).deleteBatchSize ?? 100;
 
     const expired = (await ctx.runQuery(internal.queries.expiredBatch, {
       now: Date.now(),

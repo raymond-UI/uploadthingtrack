@@ -13,7 +13,6 @@ import type * as callbacks from "../callbacks.js";
 import type * as cleanup from "../cleanup.js";
 import type * as config from "../config.js";
 import type * as files from "../files.js";
-import type * as index from "../index.js";
 import type * as queries from "../queries.js";
 import type * as stats from "../stats.js";
 import type * as types from "../types.js";
@@ -31,7 +30,6 @@ const fullApi: ApiFromModules<{
   cleanup: typeof cleanup;
   config: typeof config;
   files: typeof files;
-  index: typeof index;
   queries: typeof queries;
   stats: typeof stats;
   types: typeof types;

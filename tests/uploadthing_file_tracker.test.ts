@@ -2,9 +2,9 @@ import { describe, expect, test } from "vitest";
 import { convexTest } from "convex-test";
 import { createHmac } from "node:crypto";
 
-import schema from "../component/schema";
+import schema from "../src/component/schema";
 
-const modules = import.meta.glob("../component/**/*.ts");
+const modules = import.meta.glob("../src/component/**/*.ts");
 
 function makeTest() {
   return convexTest(schema, modules);

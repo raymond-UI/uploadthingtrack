@@ -1,21 +1,21 @@
 import { action, mutation, query } from "./_generated/server";
 import { components } from "./_generated/api";
+import { UploadThingFiles } from "@convex-dev/uploadthing";
 import { v } from "convex/values";
+
+const uploadthing = new UploadThingFiles(components.uploadthingFileTracker);
 
 export const setUploadthingConfig = mutation({
   args: {
     uploadthingApiKey: v.string(),
   },
   handler: async (ctx, args) => {
-    return await ctx.runMutation(
-      components.uploadthingFileTracker.config.setConfig,
-      {
-        config: {
-          uploadthingApiKey: args.uploadthingApiKey,
-        },
-        replace: false,
+    return await uploadthing.setConfig(ctx, {
+      config: {
+        uploadthingApiKey: args.uploadthingApiKey,
       },
-    );
+      replace: false,
+    });
   },
 });
 
@@ -26,7 +26,7 @@ export const listMyFiles = query({
     mimeType: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    return await ctx.runQuery(components.uploadthingFileTracker.queries.listFiles, {
+    return await uploadthing.listFiles(ctx, {
       ownerUserId: args.userId,
       viewerUserId: args.userId,
       tag: args.tag,
@@ -40,7 +40,7 @@ export const getMyUsage = query({
     userId: v.string(),
   },
   handler: async (ctx, args) => {
-    return await ctx.runQuery(components.uploadthingFileTracker.stats.getUsageStats, {
+    return await uploadthing.getUsageStats(ctx, {
       userId: args.userId,
     });
   },
@@ -52,12 +52,9 @@ export const cleanupExpiredFiles = action({
     dryRun: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
-    return await ctx.runAction(
-      components.uploadthingFileTracker.cleanup.cleanupExpired,
-      {
-        batchSize: args.batchSize,
-        dryRun: args.dryRun,
-      },
-    );
+    return await uploadthing.cleanupExpired(ctx, {
+      batchSize: args.batchSize,
+      dryRun: args.dryRun,
+    });
   },
 });

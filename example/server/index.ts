@@ -1,4 +1,9 @@
-import "dotenv/config";
+import dotenv from "dotenv";
+import { fileURLToPath } from "url";
+import { dirname, resolve } from "path";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: resolve(__dirname, "../.env") });
 import express from "express";
 import cors from "cors";
 import { createRouteHandler } from "uploadthing/express";
@@ -19,7 +24,7 @@ const uploadthingToken = process.env.UPLOADTHING_TOKEN;
 const uploadthingCallbackUrl = process.env.UPLOADTHING_CALLBACK_URL;
 
 if (!uploadthingToken) {
-  throw new Error("Missing UPLOADTHING_TOKEN in example-app/.env");
+  throw new Error("Missing UPLOADTHING_TOKEN in example/.env");
 }
 
 const config = { token: uploadthingToken };

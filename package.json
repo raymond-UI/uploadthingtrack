@@ -1,16 +1,80 @@
 {
-  "name": "convex-component-authoring",
-  "private": true,
+  "name": "@convex-dev/uploadthing",
+  "description": "UploadThing file tracking, access control, and cleanup for Convex.",
+  "version": "0.1.0",
+  "license": "Apache-2.0",
+  "keywords": ["convex", "component", "uploadthing", "file-upload"],
   "type": "module",
   "scripts": {
+    "dev": "npm-run-all --parallel dev:*",
+    "dev:backend": "convex dev --typecheck-components",
+    "dev:frontend": "cd example && vite --clearScreen false",
+    "dev:build": "chokidar 'tsconfig*.json' 'src/**/*.ts' -i '**/*.test.ts' -c 'npm run build:codegen' --initial",
+    "dev:uploadthing": "tsx watch example/server/index.ts",
+    "predev": "npx path-exists .env.local dist || (npm run build && convex dev --once)",
+    "build": "tsc --project ./tsconfig.build.json",
+    "build:codegen": "npx convex codegen --component-dir ./src/component && npm run build",
+    "build:clean": "rm -rf dist *.tsbuildinfo && npm run build:codegen",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest --clearScreen false",
+    "preversion": "npm ci && npm run build:clean && npm test && npm run typecheck",
+    "prepublishOnly": "npm whoami || npm login"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "types": "./dist/client/index.d.ts",
+  "module": "./dist/client/index.js",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/client/index.d.ts",
+      "default": "./dist/client/index.js"
+    },
+    "./test": "./src/test.ts",
+    "./_generated/component.js": {
+      "types": "./dist/component/_generated/component.d.ts"
+    },
+    "./_generated/component": {
+      "types": "./dist/component/_generated/component.d.ts"
+    },
+    "./convex.config.js": {
+      "types": "./dist/component/convex.config.d.ts",
+      "default": "./dist/component/convex.config.js"
+    },
+    "./convex.config": {
+      "types": "./dist/component/convex.config.d.ts",
+      "default": "./dist/component/convex.config.js"
+    }
+  },
+  "peerDependencies": {
+    "convex": "^1.31.7"
   },
   "devDependencies": {
+    "@edge-runtime/vm": "^5.0.0",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
     "@types/node": "^22.10.5",
-    "convex": "^1.17.2",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@uploadthing/react": "^7.3.3",
+    "@vitejs/plugin-react": "^4.3.3",
+    "chokidar-cli": "^3.0.0",
+    "convex": "1.31.7",
     "convex-test": "^0.0.41",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.19.2",
+    "npm-run-all2": "^8.0.4",
+    "path-exists-cli": "^2.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tsx": "^4.19.2",
     "typescript": "^5.6.3",
+    "uploadthing": "^7.7.4",
+    "vite": "^5.4.11",
     "vitest": "^2.1.5"
   }
 }

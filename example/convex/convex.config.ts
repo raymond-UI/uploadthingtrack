@@ -1,5 +1,5 @@
 import { defineApp } from "convex/server";
-import uploadthingFileTracker from "../../component/convex.config";
+import uploadthingFileTracker from "@convex-dev/uploadthing/convex.config.js";
 
 const app = defineApp();
 
