@@ -2,6 +2,9 @@ import { useMemo, useState } from "react";
 import { useAction, useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { useUploadThing } from "./uploadthing";
+import Tabs from "./components/Tabs";
+import AccessControlPanel from "./components/AccessControlPanel";
+import ReplacementPanel from "./components/ReplacementPanel";
 
 export default function App() {
   const [userId, setUserId] = useState("user_demo");
@@ -83,16 +86,8 @@ export default function App() {
     await startUpload(selectedFiles);
   };
 
-  return (
-    <div className="app">
-      <header>
-        <h1>UploadThing File Tracker</h1>
-        <p>
-          This demo app uses the UploadThing File Tracker component via Convex.
-          It runs an UploadThing server locally and forwards callbacks to Convex.
-        </p>
-      </header>
-
+  const mainTab = (
+    <div>
       <section className="card">
         <h2>Viewer</h2>
         <div className="row">
@@ -256,6 +251,38 @@ export default function App() {
           action <code>/webhooks/uploadthing</code>.
         </p>
       </section>
+    </div>
+  );
+
+  const adminTab = (
+    <div>
+      <section className="card">
+        <h2>Access Control</h2>
+        <AccessControlPanel />
+      </section>
+      <section className="card">
+        <h2>Replacement</h2>
+        <ReplacementPanel />
+      </section>
+    </div>
+  );
+
+  return (
+    <div className="app">
+      <header>
+        <h1>UploadThing File Tracker</h1>
+        <p>
+          This demo app uses the UploadThing File Tracker component via Convex.
+          It runs an UploadThing server locally and forwards callbacks to Convex.
+        </p>
+      </header>
+
+      <Tabs
+        tabs={[
+          { id: "overview", label: "Overview", content: mainTab },
+          { id: "admin", label: "Admin", content: adminTab },
+        ]}
+      />
     </div>
   );
 }
