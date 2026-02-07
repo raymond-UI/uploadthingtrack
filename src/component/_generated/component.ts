@@ -28,7 +28,8 @@ export type ComponentApi<Name extends string | undefined = string | undefined> =
         "action",
         "internal",
         { apiKey?: string; hook: string; rawBody: string; signature: string },
-        any,
+        | { fileId: string; hook: string; ok: true }
+        | { error: string; ok: false },
         Name
       >;
     };
@@ -42,7 +43,20 @@ export type ComponentApi<Name extends string | undefined = string | undefined> =
       >;
     };
     config: {
-      getConfig: FunctionReference<"query", "internal", {}, any, Name>;
+      getConfig: FunctionReference<
+        "query",
+        "internal",
+        {},
+        {
+          defaultTtlMs?: number;
+          deleteBatchSize?: number;
+          deleteRemoteOnExpire?: boolean;
+          hasApiKey: boolean;
+          ttlByFileType?: Record<string, number>;
+          ttlByMimeType?: Record<string, number>;
+        },
+        Name
+      >;
       setConfig: FunctionReference<
         "mutation",
         "internal",
@@ -57,7 +71,7 @@ export type ComponentApi<Name extends string | undefined = string | undefined> =
           };
           replace?: boolean;
         },
-        any,
+        { created: boolean },
         Name
       >;
     };
@@ -73,7 +87,7 @@ export type ComponentApi<Name extends string | undefined = string | undefined> =
           } | null;
           key: string;
         },
-        any,
+        string | null,
         Name
       >;
       setFolderAccess: FunctionReference<
@@ -87,7 +101,7 @@ export type ComponentApi<Name extends string | undefined = string | undefined> =
           } | null;
           folder: string;
         },
-        any,
+        string | null,
         Name
       >;
       upsertFile: FunctionReference<
@@ -119,7 +133,7 @@ export type ComponentApi<Name extends string | undefined = string | undefined> =
           };
           userId: string;
         },
-        any,
+        string,
         Name
       >;
     };
@@ -128,7 +142,29 @@ export type ComponentApi<Name extends string | undefined = string | undefined> =
         "query",
         "internal",
         { key: string; viewerUserId?: string },
-        any,
+        {
+          _creationTime: number;
+          _id: string;
+          access?: {
+            allowUserIds?: Array<string>;
+            denyUserIds?: Array<string>;
+            visibility: "public" | "private" | "restricted";
+          };
+          customId?: string;
+          expiresAt?: number;
+          fileType?: string;
+          folder?: string;
+          key: string;
+          metadata?: any;
+          mimeType: string;
+          name: string;
+          replacedAt?: number;
+          size: number;
+          tags?: Array<string>;
+          uploadedAt: number;
+          url: string;
+          userId: string;
+        } | null,
         Name
       >;
       listFiles: FunctionReference<
@@ -143,7 +179,29 @@ export type ComponentApi<Name extends string | undefined = string | undefined> =
           tag?: string;
           viewerUserId?: string;
         },
-        any,
+        Array<{
+          _creationTime: number;
+          _id: string;
+          access?: {
+            allowUserIds?: Array<string>;
+            denyUserIds?: Array<string>;
+            visibility: "public" | "private" | "restricted";
+          };
+          customId?: string;
+          expiresAt?: number;
+          fileType?: string;
+          folder?: string;
+          key: string;
+          metadata?: any;
+          mimeType: string;
+          name: string;
+          replacedAt?: number;
+          size: number;
+          tags?: Array<string>;
+          uploadedAt: number;
+          url: string;
+          userId: string;
+        }>,
         Name
       >;
     };
@@ -152,7 +210,7 @@ export type ComponentApi<Name extends string | undefined = string | undefined> =
         "query",
         "internal",
         { userId: string },
-        any,
+        { totalBytes: number; totalFiles: number },
         Name
       >;
     };
