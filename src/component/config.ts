@@ -37,6 +37,14 @@ export async function loadGlobals(ctx: { db: any }): Promise<Globals> {
 
 export const getGlobalsInternal = internalQuery({
   args: {},
+  returns: v.object({
+    uploadthingApiKey: v.optional(v.string()),
+    defaultTtlMs: v.optional(v.number()),
+    ttlByMimeType: v.optional(v.record(v.string(), v.number())),
+    ttlByFileType: v.optional(v.record(v.string(), v.number())),
+    deleteRemoteOnExpire: v.optional(v.boolean()),
+    deleteBatchSize: v.optional(v.number()),
+  }),
   handler: async (ctx) => {
     return await readGlobals(ctx.db);
   },
@@ -76,6 +84,7 @@ export const setConfig = mutation({
     config: configUpdateValidator,
     replace: v.optional(v.boolean()),
   },
+  returns: v.object({ created: v.boolean() }),
   handler: async (ctx, args) => {
     const existing = await ctx.db
       .query("globals")
@@ -101,6 +110,14 @@ export const setConfig = mutation({
 
 export const getConfig = query({
   args: {},
+  returns: v.object({
+    defaultTtlMs: v.optional(v.number()),
+    ttlByMimeType: v.optional(v.record(v.string(), v.number())),
+    ttlByFileType: v.optional(v.record(v.string(), v.number())),
+    deleteRemoteOnExpire: v.optional(v.boolean()),
+    deleteBatchSize: v.optional(v.number()),
+    hasApiKey: v.boolean(),
+  }),
   handler: async (ctx) => {
     const globals = await loadGlobals(ctx);
     return {

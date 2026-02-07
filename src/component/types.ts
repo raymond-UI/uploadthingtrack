@@ -47,3 +47,28 @@ export const configUpdateValidator = v.object({
 });
 
 export type ConfigUpdate = Infer<typeof configUpdateValidator>;
+
+export const fileDocValidator = v.object({
+  _id: v.id("files"),
+  _creationTime: v.number(),
+  key: v.string(),
+  url: v.string(),
+  name: v.string(),
+  size: v.number(),
+  mimeType: v.string(),
+  uploadedAt: v.number(),
+  userId: v.string(),
+  tags: v.optional(v.array(v.string())),
+  folder: v.optional(v.string()),
+  access: v.optional(accessRuleValidator),
+  metadata: v.optional(v.any()),
+  expiresAt: v.optional(v.number()),
+  replacedAt: v.optional(v.number()),
+  customId: v.optional(v.string()),
+  fileType: v.optional(v.string()),
+});
+
+export const callbackResultValidator = v.union(
+  v.object({ ok: v.literal(true), fileId: v.string(), hook: v.string() }),
+  v.object({ ok: v.literal(false), error: v.string() }),
+);

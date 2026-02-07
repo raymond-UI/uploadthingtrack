@@ -1,6 +1,7 @@
 import { action } from "./_generated/server";
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
+import { callbackResultValidator } from "./types";
 
 function normalizeSignature(signature: string): string {
   const trimmed = signature.trim();
@@ -105,6 +106,7 @@ export const handleUploadthingCallback = action({
     hook: v.string(),
     apiKey: v.optional(v.string()),
   },
+  returns: callbackResultValidator,
   handler: async (ctx, args): Promise<CallbackResult> => {
     const globals = await ctx.runQuery(internal.config.getGlobalsInternal, {});
     const apiKey = args.apiKey ?? globals.uploadthingApiKey;

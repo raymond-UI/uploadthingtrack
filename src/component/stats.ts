@@ -5,6 +5,7 @@ export const getUsageStats = query({
   args: {
     userId: v.string(),
   },
+  returns: v.object({ totalFiles: v.number(), totalBytes: v.number() }),
   handler: async (ctx, args) => {
     let totalFiles = 0;
     let totalBytes = 0;

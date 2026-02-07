@@ -82,6 +82,7 @@ export const upsertFile = mutation({
     userId: v.string(),
     options: v.optional(fileUpsertOptionsValidator),
   },
+  returns: v.id("files"),
   handler: async (ctx, args) => {
     return await upsertFileRecord(ctx, {
       file: args.file,
@@ -97,6 +98,7 @@ export const internalUpsertFile = internalMutation({
     userId: v.string(),
     options: v.optional(fileUpsertOptionsValidator),
   },
+  returns: v.id("files"),
   handler: async (ctx, args) => {
     return await upsertFileRecord(ctx, {
       file: args.file,
@@ -111,6 +113,7 @@ export const setFileAccess = mutation({
     key: v.string(),
     access: v.optional(v.union(accessRuleValidator, v.null())),
   },
+  returns: v.union(v.id("files"), v.null()),
   handler: async (ctx, args) => {
     const existing = await ctx.db
       .query("files")
@@ -132,6 +135,7 @@ export const setFolderAccess = mutation({
     folder: v.string(),
     access: v.optional(v.union(accessRuleValidator, v.null())),
   },
+  returns: v.union(v.id("folderRules"), v.null()),
   handler: async (ctx, args) => {
     const existing = await ctx.db
       .query("folderRules")
@@ -172,6 +176,7 @@ export const deleteFilesByKey = internalMutation({
   args: {
     keys: v.array(v.string()),
   },
+  returns: v.null(),
   handler: async (ctx, args) => {
     for (const key of args.keys) {
       const existing = await ctx.db
@@ -182,5 +187,6 @@ export const deleteFilesByKey = internalMutation({
         await ctx.db.delete(existing._id);
       }
     }
+    return null;
   },
 });

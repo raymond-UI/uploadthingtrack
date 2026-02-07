@@ -1,6 +1,8 @@
 import { query, internalQuery } from "./_generated/server";
 import { v } from "convex/values";
+import type { Id } from "./_generated/dataModel";
 import { canAccess } from "./access";
+import { fileDocValidator } from "./types";
 
 async function getFolderRule(ctx: any, folder?: string) {
   if (!folder) return undefined;
@@ -16,6 +18,7 @@ export const getFileByKey = query({
     key: v.string(),
     viewerUserId: v.optional(v.string()),
   },
+  returns: v.union(fileDocValidator, v.null()),
   handler: async (ctx, args) => {
     const file = await ctx.db
       .query("files")
@@ -48,6 +51,7 @@ export const listFiles = query({
     includeExpired: v.optional(v.boolean()),
     limit: v.optional(v.number()),
   },
+  returns: v.array(fileDocValidator),
   handler: async (ctx, args) => {
     const query = ctx.db
       .query("files")
@@ -104,13 +108,14 @@ export const expiredBatch = internalQuery({
     now: v.number(),
     limit: v.number(),
   },
+  returns: v.array(v.object({ key: v.string(), _id: v.id("files") })),
   handler: async (ctx, args) => {
     const query = ctx.db
       .query("files")
       .withIndex("by_expiresAt", (q: any) => q.lte("expiresAt", args.now))
       .order("asc");
 
-    const expired = [] as { key: string; _id: string }[];
+    const expired: { key: string; _id: Id<"files"> }[] = [];
     for await (const file of query) {
       expired.push({ key: file.key, _id: file._id });
       if (expired.length >= args.limit) break;
