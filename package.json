@@ -1,9 +1,14 @@
 {
   "name": "@mzedstudio/uploadthingtrack",
   "description": "UploadThing file tracking, access control, and cleanup for Convex.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "Apache-2.0",
-  "keywords": ["convex", "component", "uploadthing", "file-upload"],
+  "keywords": [
+    "convex",
+    "component",
+    "uploadthing",
+    "file-upload"
+  ],
   "type": "module",
   "scripts": {
     "dev": "npm-run-all --parallel dev:*",
