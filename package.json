@@ -1,5 +1,5 @@
 {
-  "name": "@mzedstudio/uploadthingtrack",
+  "name": "@raymond-UI/uploadthingtrack",
   "description": "UploadThing file tracking, access control, and cleanup for Convex.",
   "version": "0.1.1",
   "license": "Apache-2.0",
@@ -12,11 +12,11 @@
   "author": "mzedstudio",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mzedstudio/uploadthingtrack.git"
+    "url": "https://github.com/raymond-UI/uploadthingtrack.git"
   },
-  "homepage": "https://github.com/mzedstudio/uploadthingtrack#readme",
+  "homepage": "https://github.com/raymond-UI/uploadthingtrack#readme",
   "bugs": {
-    "url": "https://github.com/mzedstudio/uploadthingtrack/issues"
+    "url": "https://github.com/raymond-UI/uploadthingtrack/issues"
   },
   "type": "module",
   "scripts": {
