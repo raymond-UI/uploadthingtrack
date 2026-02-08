@@ -38,7 +38,14 @@ export type ComponentApi<Name extends string | undefined = string | undefined> =
         "action",
         "internal",
         { batchSize?: number; dryRun?: boolean },
-        { deletedCount: number; hasMore: boolean; keys: Array<string> },
+        {
+          deletedCount: number;
+          hasMore: boolean;
+          keys: Array<string>;
+          remoteDeleteError?: string;
+          remoteDeleteFailed?: boolean;
+          remoteDeletedCount?: number;
+        },
         Name
       >;
     };

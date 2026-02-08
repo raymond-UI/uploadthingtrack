@@ -400,6 +400,84 @@ describe("uploadthing file tracker", () => {
     expect(result.deletedCount).toBe(1);
   });
 
+  test("cleanup warns when deleteRemoteOnExpire is true but no API key", async () => {
+    const t = makeTest();
+
+    await t.mutation("config:setConfig", {
+      config: { deleteRemoteOnExpire: true },
+    });
+
+    await t.mutation("files:upsertFile", {
+      file: { ...baseFile, key: "remote_no_key" },
+      userId: "owner",
+      options: { expiresAt: Date.now() - 10_000 },
+    });
+
+    const result = await t.action("cleanup:cleanupExpired", {});
+
+    // Should still delete local records but warn about missing API key
+    expect(result.deletedCount).toBe(1);
+    expect(result.remoteDeleteFailed).toBe(true);
+    expect(result.remoteDeleteError).toContain("uploadthingApiKey");
+  });
+
+  test("cleanup preserves local records when remote deletion fails", async () => {
+    const t = makeTest();
+
+    await t.mutation("config:setConfig", {
+      config: {
+        deleteRemoteOnExpire: true,
+        uploadthingApiKey: "sk_test_fake_key_for_testing",
+      },
+    });
+
+    await t.mutation("files:upsertFile", {
+      file: { ...baseFile, key: "remote_delete_1" },
+      userId: "owner",
+      options: { expiresAt: Date.now() - 10_000 },
+    });
+
+    // The UT API call will fail (fake key), so local records should be preserved
+    const result = await t.action("cleanup:cleanupExpired", {});
+
+    expect(result.deletedCount).toBe(0);
+    expect(result.remoteDeleteFailed).toBe(true);
+    expect(result.remoteDeleteError).toBeDefined();
+
+    // Verify local record still exists (not deleted due to remote failure)
+    const files = await t.query("queries:listFiles", {
+      ownerUserId: "owner",
+      viewerUserId: "owner",
+      includeExpired: true,
+    });
+    expect(files.some((f: any) => f.key === "remote_delete_1")).toBe(true);
+  });
+
+  test("dryRun does not attempt remote deletion", async () => {
+    const t = makeTest();
+
+    await t.mutation("config:setConfig", {
+      config: {
+        deleteRemoteOnExpire: true,
+        uploadthingApiKey: "sk_test_fake",
+      },
+    });
+
+    await t.mutation("files:upsertFile", {
+      file: { ...baseFile, key: "dryrun_remote" },
+      userId: "owner",
+      options: { expiresAt: Date.now() - 10_000 },
+    });
+
+    const result = await t.action("cleanup:cleanupExpired", { dryRun: true });
+
+    expect(result.deletedCount).toBe(0);
+    expect(result.keys).toContain("dryrun_remote");
+    // No remote fields should be present in dryRun
+    expect(result.remoteDeleteFailed).toBeUndefined();
+    expect(result.remoteDeletedCount).toBeUndefined();
+  });
+
   test("callback validates signature and stores metadata", async () => {
     const t = makeTest();
 
