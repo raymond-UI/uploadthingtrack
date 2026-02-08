@@ -213,6 +213,12 @@ export class UploadThingFiles {
 
   /**
    * Delete expired file records in batches. Use `dryRun` to preview.
+   *
+   * When `deleteRemoteOnExpire` is enabled in config, also calls the
+   * UploadThing API to delete files from their servers before removing
+   * local records. If remote deletion fails, local records are preserved
+   * so the next run can retry. Check `remoteDeleteFailed` and
+   * `remoteDeleteError` in the return value for details.
    */
   async cleanupExpired(
     ctx: ActionCtx,
