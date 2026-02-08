@@ -212,6 +212,17 @@ export class UploadThingFiles {
   }
 
   /**
+   * Delete specific file records by their UploadThing keys.
+   * Returns the number of records actually deleted.
+   */
+  async deleteFiles(
+    ctx: MutationCtx,
+    args: { keys: string[] },
+  ) {
+    return await ctx.runMutation(this.component.files.deleteFiles, args);
+  }
+
+  /**
    * Delete expired file records in batches. Use `dryRun` to preview.
    *
    * When `deleteRemoteOnExpire` is enabled in config, also calls the

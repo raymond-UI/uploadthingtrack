@@ -174,6 +174,27 @@ export const setFolderAccess = mutation({
   },
 });
 
+export const deleteFiles = mutation({
+  args: {
+    keys: v.array(v.string()),
+  },
+  returns: v.number(),
+  handler: async (ctx, args) => {
+    let count = 0;
+    for (const key of args.keys) {
+      const existing = await ctx.db
+        .query("files")
+        .withIndex("by_key", (q) => q.eq("key", key))
+        .unique();
+      if (existing) {
+        await ctx.db.delete(existing._id);
+        count++;
+      }
+    }
+    return count;
+  },
+});
+
 export const deleteFilesByKey = internalMutation({
   args: {
     keys: v.array(v.string()),
