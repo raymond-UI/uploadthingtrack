@@ -57,7 +57,8 @@ export declare const components: {
         "action",
         "internal",
         { apiKey?: string; hook: string; rawBody: string; signature: string },
-        any
+        | { fileId: string; hook: string; ok: true }
+        | { error: string; ok: false }
       >;
     };
     cleanup: {
@@ -69,7 +70,19 @@ export declare const components: {
       >;
     };
     config: {
-      getConfig: FunctionReference<"query", "internal", {}, any>;
+      getConfig: FunctionReference<
+        "query",
+        "internal",
+        {},
+        {
+          defaultTtlMs?: number;
+          deleteBatchSize?: number;
+          deleteRemoteOnExpire?: boolean;
+          hasApiKey: boolean;
+          ttlByFileType?: Record<string, number>;
+          ttlByMimeType?: Record<string, number>;
+        }
+      >;
       setConfig: FunctionReference<
         "mutation",
         "internal",
@@ -84,7 +97,7 @@ export declare const components: {
           };
           replace?: boolean;
         },
-        any
+        { created: boolean }
       >;
     };
     files: {
@@ -99,7 +112,7 @@ export declare const components: {
           } | null;
           key: string;
         },
-        any
+        string | null
       >;
       setFolderAccess: FunctionReference<
         "mutation",
@@ -112,7 +125,7 @@ export declare const components: {
           } | null;
           folder: string;
         },
-        any
+        string | null
       >;
       upsertFile: FunctionReference<
         "mutation",
@@ -143,7 +156,7 @@ export declare const components: {
           };
           userId: string;
         },
-        any
+        string
       >;
     };
     queries: {
@@ -151,7 +164,29 @@ export declare const components: {
         "query",
         "internal",
         { key: string; viewerUserId?: string },
-        any
+        {
+          _creationTime: number;
+          _id: string;
+          access?: {
+            allowUserIds?: Array<string>;
+            denyUserIds?: Array<string>;
+            visibility: "public" | "private" | "restricted";
+          };
+          customId?: string;
+          expiresAt?: number;
+          fileType?: string;
+          folder?: string;
+          key: string;
+          metadata?: any;
+          mimeType: string;
+          name: string;
+          replacedAt?: number;
+          size: number;
+          tags?: Array<string>;
+          uploadedAt: number;
+          url: string;
+          userId: string;
+        } | null
       >;
       listFiles: FunctionReference<
         "query",
@@ -165,7 +200,29 @@ export declare const components: {
           tag?: string;
           viewerUserId?: string;
         },
-        any
+        Array<{
+          _creationTime: number;
+          _id: string;
+          access?: {
+            allowUserIds?: Array<string>;
+            denyUserIds?: Array<string>;
+            visibility: "public" | "private" | "restricted";
+          };
+          customId?: string;
+          expiresAt?: number;
+          fileType?: string;
+          folder?: string;
+          key: string;
+          metadata?: any;
+          mimeType: string;
+          name: string;
+          replacedAt?: number;
+          size: number;
+          tags?: Array<string>;
+          uploadedAt: number;
+          url: string;
+          userId: string;
+        }>
       >;
     };
     stats: {
@@ -173,7 +230,7 @@ export declare const components: {
         "query",
         "internal",
         { userId: string },
-        any
+        { totalBytes: number; totalFiles: number }
       >;
     };
   };

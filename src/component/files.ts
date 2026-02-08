@@ -1,10 +1,12 @@
 import { mutation, internalMutation } from "./_generated/server";
+import type { MutationCtx } from "./_generated/server";
 import { v } from "convex/values";
 import { computeExpiresAt, loadGlobals } from "./config";
+import type { AccessRule } from "./types";
 import { accessRuleValidator, fileInfoValidator, fileUpsertOptionsValidator } from "./types";
 import { sanitizeAccessRule } from "./access";
 
-async function upsertFileRecord(ctx: any, params: {
+async function upsertFileRecord(ctx: MutationCtx, params: {
   file: {
     key: string;
     url: string;
@@ -19,8 +21,8 @@ async function upsertFileRecord(ctx: any, params: {
   options?: {
     tags?: string[];
     folder?: string;
-    access?: any;
-    metadata?: any;
+    access?: AccessRule;
+    metadata?: Record<string, unknown>;
     expiresAt?: number;
     ttlMs?: number;
     fileType?: string;
@@ -41,10 +43,10 @@ async function upsertFileRecord(ctx: any, params: {
 
   const existing = await ctx.db
     .query("files")
-    .withIndex("by_key", (q: any) => q.eq("key", params.file.key))
+    .withIndex("by_key", (q) => q.eq("key", params.file.key))
     .unique();
 
-  const patch: any = {
+  const patch: Record<string, unknown> = {
     url: params.file.url,
     name: params.file.name,
     size: params.file.size,
@@ -66,14 +68,14 @@ async function upsertFileRecord(ctx: any, params: {
 
   if (existing) {
     patch.replacedAt = now;
-    await ctx.db.patch(existing._id, patch);
+    await ctx.db.patch(existing._id, patch as any);
     return existing._id;
   }
 
   return await ctx.db.insert("files", {
     key: params.file.key,
     ...patch,
-  });
+  } as any);
 }
 
 export const upsertFile = mutation({

@@ -1,4 +1,5 @@
 import { internalQuery, mutation, query } from "./_generated/server";
+import type { DatabaseReader } from "./_generated/server";
 import { v } from "convex/values";
 import { configUpdateValidator } from "./types";
 
@@ -13,10 +14,10 @@ export type Globals = {
   deleteBatchSize?: number;
 };
 
-async function readGlobals(db: any): Promise<Globals> {
+async function readGlobals(db: DatabaseReader): Promise<Globals> {
   const record = await db
     .query("globals")
-    .withIndex("by_singleton", (q: any) => q.eq("singleton", GLOBALS_ID))
+    .withIndex("by_singleton", (q) => q.eq("singleton", GLOBALS_ID))
     .unique();
 
   if (!record) return {};
@@ -31,7 +32,7 @@ async function readGlobals(db: any): Promise<Globals> {
   };
 }
 
-export async function loadGlobals(ctx: { db: any }): Promise<Globals> {
+export async function loadGlobals(ctx: { db: DatabaseReader }): Promise<Globals> {
   return await readGlobals(ctx.db);
 }
 
@@ -97,13 +98,12 @@ export const setConfig = mutation({
       return { created: true };
     }
 
+    const { _id, _creationTime, ...rest } = existing;
     const update = args.replace
       ? { singleton: GLOBALS_ID, ...args.config }
-      : { ...existing, ...args.config };
-    delete (update as any)._id;
-    delete (update as any)._creationTime;
+      : { ...rest, ...args.config };
 
-    await ctx.db.patch(existing._id, update);
+    await ctx.db.patch(_id, update);
     return { created: false };
   },
 });

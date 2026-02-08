@@ -1,14 +1,16 @@
 import { query, internalQuery } from "./_generated/server";
+import type { DatabaseReader } from "./_generated/server";
 import { v } from "convex/values";
-import type { Id } from "./_generated/dataModel";
+import type { Doc, Id } from "./_generated/dataModel";
+import type { AccessRule } from "./types";
 import { canAccess } from "./access";
 import { fileDocValidator } from "./types";
 
-async function getFolderRule(ctx: any, folder?: string) {
+async function getFolderRule(db: DatabaseReader, folder?: string) {
   if (!folder) return undefined;
-  const rule = await ctx.db
+  const rule = await db
     .query("folderRules")
-    .withIndex("by_folder", (q: any) => q.eq("folder", folder))
+    .withIndex("by_folder", (q) => q.eq("folder", folder))
     .unique();
   return rule?.access;
 }
@@ -27,7 +29,7 @@ export const getFileByKey = query({
 
     if (!file) return null;
 
-    const folderRule = await getFolderRule(ctx, file.folder);
+    const folderRule = await getFolderRule(ctx.db, file.folder);
     const allowed = canAccess({
       ownerId: file.userId,
       viewerId: args.viewerUserId,
@@ -55,13 +57,13 @@ export const listFiles = query({
   handler: async (ctx, args) => {
     const query = ctx.db
       .query("files")
-      .withIndex("by_user_uploadedAt", (q: any) => q.eq("userId", args.ownerUserId))
+      .withIndex("by_user_uploadedAt", (q) => q.eq("userId", args.ownerUserId))
       .order("desc");
 
-    const results = [] as any[];
+    const results: Doc<"files">[] = [];
     const now = Date.now();
     const limit = args.limit ?? 50;
-    const folderCache = new Map<string, any>();
+    const folderCache = new Map<string, AccessRule | undefined>();
 
     for await (const file of query) {
       if (!args.includeExpired && file.expiresAt !== undefined && file.expiresAt <= now) {
@@ -82,7 +84,7 @@ export const listFiles = query({
         if (folderCache.has(file.folder)) {
           folderRule = folderCache.get(file.folder);
         } else {
-          folderRule = await getFolderRule(ctx, file.folder);
+          folderRule = await getFolderRule(ctx.db, file.folder);
           folderCache.set(file.folder, folderRule);
         }
       }
@@ -112,7 +114,7 @@ export const expiredBatch = internalQuery({
   handler: async (ctx, args) => {
     const query = ctx.db
       .query("files")
-      .withIndex("by_expiresAt", (q: any) => q.lte("expiresAt", args.now))
+      .withIndex("by_expiresAt", (q) => q.lte("expiresAt", args.now))
       .order("asc");
 
     const expired: { key: string; _id: Id<"files"> }[] = [];

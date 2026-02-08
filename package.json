@@ -9,6 +9,15 @@
     "uploadthing",
     "file-upload"
   ],
+  "author": "mzedstudio",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mzedstudio/uploadthingtrack.git"
+  },
+  "homepage": "https://github.com/mzedstudio/uploadthingtrack#readme",
+  "bugs": {
+    "url": "https://github.com/mzedstudio/uploadthingtrack/issues"
+  },
   "type": "module",
   "scripts": {
     "dev": "npm-run-all --parallel dev:*",

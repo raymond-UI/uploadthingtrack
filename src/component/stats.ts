@@ -12,7 +12,7 @@ export const getUsageStats = query({
 
     const query = ctx.db
       .query("files")
-      .withIndex("by_user", (q: any) => q.eq("userId", args.userId));
+      .withIndex("by_user", (q) => q.eq("userId", args.userId));
 
     for await (const file of query) {
       totalFiles += 1;
