@@ -83,6 +83,13 @@ export type ComponentApi<Name extends string | undefined = string | undefined> =
       >;
     };
     files: {
+      deleteFiles: FunctionReference<
+        "mutation",
+        "internal",
+        { keys: Array<string> },
+        number,
+        Name
+      >;
       setFileAccess: FunctionReference<
         "mutation",
         "internal",

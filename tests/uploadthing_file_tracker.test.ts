@@ -400,6 +400,37 @@ describe("uploadthing file tracker", () => {
     expect(result.deletedCount).toBe(1);
   });
 
+  test("deleteFiles removes specific records and returns count", async () => {
+    const t = makeTest();
+
+    await t.mutation("files:upsertFile", {
+      file: { ...baseFile, key: "del_1" },
+      userId: "owner",
+    });
+    await t.mutation("files:upsertFile", {
+      file: { ...baseFile, key: "del_2" },
+      userId: "owner",
+    });
+    await t.mutation("files:upsertFile", {
+      file: { ...baseFile, key: "del_3" },
+      userId: "owner",
+    });
+
+    const count = await t.mutation("files:deleteFiles", {
+      keys: ["del_1", "del_3", "nonexistent"],
+    });
+
+    expect(count).toBe(2);
+
+    const remaining = await t.query("queries:listFiles", {
+      ownerUserId: "owner",
+      viewerUserId: "owner",
+    });
+
+    expect(remaining.length).toBe(1);
+    expect(remaining[0]?.key).toBe("del_2");
+  });
+
   test("cleanup warns when deleteRemoteOnExpire is true but no API key", async () => {
     const t = makeTest();
 
