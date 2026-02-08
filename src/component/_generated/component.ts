@@ -167,6 +167,23 @@ export type ComponentApi<Name extends string | undefined = string | undefined> =
         } | null,
         Name
       >;
+      getFolderRuleByFolder: FunctionReference<
+        "query",
+        "internal",
+        { folder: string },
+        {
+          _creationTime: number;
+          _id: string;
+          access: {
+            allowUserIds?: Array<string>;
+            denyUserIds?: Array<string>;
+            visibility: "public" | "private" | "restricted";
+          };
+          folder: string;
+          updatedAt: number;
+        } | null,
+        Name
+      >;
       listFiles: FunctionReference<
         "query",
         "internal",
@@ -201,6 +218,23 @@ export type ComponentApi<Name extends string | undefined = string | undefined> =
           uploadedAt: number;
           url: string;
           userId: string;
+        }>,
+        Name
+      >;
+      listFolderRules: FunctionReference<
+        "query",
+        "internal",
+        { limit?: number },
+        Array<{
+          _creationTime: number;
+          _id: string;
+          access: {
+            allowUserIds?: Array<string>;
+            denyUserIds?: Array<string>;
+            visibility: "public" | "private" | "restricted";
+          };
+          folder: string;
+          updatedAt: number;
         }>,
         Name
       >;

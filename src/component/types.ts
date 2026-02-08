@@ -68,6 +68,14 @@ export const fileDocValidator = v.object({
   fileType: v.optional(v.string()),
 });
 
+export const folderRuleDocValidator = v.object({
+  _id: v.id("folderRules"),
+  _creationTime: v.number(),
+  folder: v.string(),
+  access: accessRuleValidator,
+  updatedAt: v.number(),
+});
+
 export const callbackResultValidator = v.union(
   v.object({ ok: v.literal(true), fileId: v.string(), hook: v.string() }),
   v.object({ ok: v.literal(false), error: v.string() }),

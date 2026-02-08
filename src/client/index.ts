@@ -119,6 +119,29 @@ export class UploadThingFiles {
   }
 
   /**
+   * Get the access rule for a specific folder, or `null` if none is set.
+   */
+  async getFolderRule(
+    ctx: QueryCtx,
+    args: { folder: string },
+  ) {
+    return await ctx.runQuery(
+      this.component.queries.getFolderRuleByFolder,
+      args,
+    );
+  }
+
+  /**
+   * List all folder access rules.
+   */
+  async listFolderRules(
+    ctx: QueryCtx,
+    args: { limit?: number } = {},
+  ) {
+    return await ctx.runQuery(this.component.queries.listFolderRules, args);
+  }
+
+  /**
    * Set or clear the access rule for a specific file.
    * Pass `null` to remove the file-level rule.
    */

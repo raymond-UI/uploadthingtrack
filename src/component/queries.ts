@@ -4,7 +4,7 @@ import { v } from "convex/values";
 import type { Doc, Id } from "./_generated/dataModel";
 import type { AccessRule } from "./types";
 import { canAccess } from "./access";
-import { fileDocValidator } from "./types";
+import { fileDocValidator, folderRuleDocValidator } from "./types";
 
 async function getFolderRule(db: DatabaseReader, folder?: string) {
   if (!folder) return undefined;
@@ -102,6 +102,37 @@ export const listFiles = query({
     }
 
     return results;
+  },
+});
+
+export const getFolderRuleByFolder = query({
+  args: {
+    folder: v.string(),
+  },
+  returns: v.union(folderRuleDocValidator, v.null()),
+  handler: async (ctx, args) => {
+    return (
+      (await ctx.db
+        .query("folderRules")
+        .withIndex("by_folder", (q) => q.eq("folder", args.folder))
+        .unique()) ?? null
+    );
+  },
+});
+
+export const listFolderRules = query({
+  args: {
+    limit: v.optional(v.number()),
+  },
+  returns: v.array(folderRuleDocValidator),
+  handler: async (ctx, args) => {
+    const limit = args.limit ?? 100;
+    const rules = [];
+    for await (const rule of ctx.db.query("folderRules")) {
+      rules.push(rule);
+      if (rules.length >= limit) break;
+    }
+    return rules;
   },
 });
 
