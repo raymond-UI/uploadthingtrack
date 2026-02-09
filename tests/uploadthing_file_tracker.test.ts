@@ -542,6 +542,32 @@ describe("uploadthing file tracker", () => {
     expect(result.remoteDeleteError).toContain("uploadthingApiKey");
   });
 
+  test("cleanup accepts apiKey arg as fallback", async () => {
+    const t = makeTest();
+
+    await t.mutation("config:setConfig", {
+      config: { deleteRemoteOnExpire: true },
+      // No uploadthingApiKey in config
+    });
+
+    await t.mutation("files:upsertFile", {
+      file: { ...baseFile, key: "apikey_arg" },
+      userId: "owner",
+      options: { expiresAt: Date.now() - 10_000 },
+    });
+
+    // Pass apiKey via args — will attempt UT API call (fails with fake key),
+    // proving the arg was used instead of hitting the "no key" warning
+    const result = await t.action("cleanup:cleanupExpired", {
+      apiKey: "sk_test_fake_key_via_arg",
+    });
+
+    // Should fail at the UT API call, not at the "no key" check
+    expect(result.deletedCount).toBe(0);
+    expect(result.remoteDeleteFailed).toBe(true);
+    expect(result.remoteDeleteError).not.toContain("no uploadthingApiKey is configured");
+  });
+
   test("cleanup preserves local records when remote deletion fails", async () => {
     const t = makeTest();
 

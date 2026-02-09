@@ -1,7 +1,7 @@
 {
   "name": "@mzedstudio/uploadthingtrack",
   "description": "UploadThing file tracking, access control, and cleanup for Convex.",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "license": "Apache-2.0",
   "keywords": [
     "convex",

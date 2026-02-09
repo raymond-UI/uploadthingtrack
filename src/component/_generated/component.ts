@@ -37,7 +37,7 @@ export type ComponentApi<Name extends string | undefined = string | undefined> =
       cleanupExpired: FunctionReference<
         "action",
         "internal",
-        { batchSize?: number; dryRun?: boolean },
+        { apiKey?: string; batchSize?: number; dryRun?: boolean },
         {
           deletedCount: number;
           hasMore: boolean;

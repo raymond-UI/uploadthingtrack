@@ -42,6 +42,7 @@ export const cleanupExpired = action({
   args: {
     batchSize: v.optional(v.number()),
     dryRun: v.optional(v.boolean()),
+    apiKey: v.optional(v.string()),
   },
   returns: v.object({
     deletedCount: v.number(),
@@ -82,12 +83,14 @@ export const cleanupExpired = action({
     let remoteDeleteError: string | undefined;
 
     if (globals.deleteRemoteOnExpire) {
-      if (!globals.uploadthingApiKey) {
+      const apiKey = args.apiKey ?? globals.uploadthingApiKey;
+      if (!apiKey) {
         remoteDeleteFailed = true;
         remoteDeleteError =
-          "deleteRemoteOnExpire is enabled but no uploadthingApiKey is configured";
+          "deleteRemoteOnExpire is enabled but no uploadthingApiKey is configured. " +
+          "Pass apiKey to cleanupExpired or set it via setConfig.";
       } else {
-        const result = await deleteRemoteFiles(globals.uploadthingApiKey, keys);
+        const result = await deleteRemoteFiles(apiKey, keys);
         if (result.success) {
           remoteDeletedCount = keys.length;
         } else {

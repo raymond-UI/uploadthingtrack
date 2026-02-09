@@ -12,8 +12,12 @@ UploadThing handles file storage. This component adds the metadata layer: **who 
 - **Expiration** -- configurable TTL by file, MIME type, file type, or a global default
 - **Replacement** -- re-uploading with the same key updates the record in place
 - **Tags and filters** -- tag files and query by user, folder, tag, or MIME type
+- **Cross-user queries** -- list files across all users for galleries, feeds, and shared boards
+- **On-demand deletion** -- delete specific file records by key
+- **Remote cleanup** -- optionally delete files from UploadThing servers when they expire
 - **Webhook verification** -- HMAC SHA-256 signature validation for UploadThing callbacks
 - **Cleanup** -- batch deletion of expired file records
+- **Custom metadata** -- store and retrieve arbitrary metadata on file records
 - **Usage stats** -- total files and bytes per user
 
 ## Installation
@@ -72,6 +76,7 @@ export const setup = mutation({
         defaultTtlMs: 30 * 24 * 60 * 60 * 1000, // 30 days
         ttlByMimeType: { "image/png": 90 * 24 * 60 * 60 * 1000 },
         ttlByFileType: { avatar: 365 * 24 * 60 * 60 * 1000 },
+        deleteRemoteOnExpire: true, // also delete from UploadThing servers
       },
     });
   },
@@ -104,6 +109,25 @@ export const getFile = query({
 });
 ```
 
+### Cross-user file listing
+
+List files across all users -- useful for galleries, public feeds, and shared boards:
+
+```ts
+export const publicGallery = query({
+  args: { viewerUserId: v.optional(v.string()) },
+  handler: async (ctx, args) => {
+    return await uploadthing.listAllFiles(ctx, {
+      viewerUserId: args.viewerUserId,
+      folder: "gallery",
+      limit: 20,
+    });
+  },
+});
+```
+
+`listAllFiles` applies the same access control as `listFiles` -- viewers only see files they have permission to access. All filters (`folder`, `tag`, `mimeType`, `includeExpired`) are supported.
+
 ### Inserting files manually
 
 ```ts
@@ -124,8 +148,23 @@ export const trackFile = mutation({
       options: {
         folder: "uploads",
         tags: ["document"],
+        metadata: { uploaderName: args.displayName },
       },
     });
+  },
+});
+```
+
+### Deleting files
+
+Delete specific file records by key:
+
+```ts
+export const removeFiles = mutation({
+  args: { keys: v.array(v.string()) },
+  handler: async (ctx, args) => {
+    const count = await uploadthing.deleteFiles(ctx, { keys: args.keys });
+    // count = number of records actually deleted
   },
 });
 ```
@@ -200,6 +239,8 @@ export const cleanup = action({
 });
 ```
 
+When `deleteRemoteOnExpire` is enabled in config, `cleanupExpired` also calls the UploadThing API to delete files from their servers before removing local records. If remote deletion fails, local records are preserved so the next run can retry. Check `remoteDeleteFailed` and `remoteDeleteError` in the return value for details.
+
 ## TTL Precedence
 
 When determining a file's expiration, the first match wins:
@@ -219,14 +260,29 @@ When determining a file's expiration, the first match wins:
 |---|---|---|
 | `upsertFile(ctx, args)` | mutation | Insert or replace a file record by key |
 | `getFile(ctx, args)` | query | Get a file by key with access control |
-| `listFiles(ctx, args)` | query | List files with filters |
+| `listFiles(ctx, args)` | query | List files for a specific user with filters |
+| `listAllFiles(ctx, args)` | query | List files across all users with access control |
+| `deleteFiles(ctx, args)` | mutation | Delete specific file records by key |
 | `setFileAccess(ctx, args)` | mutation | Set or clear file-level access rules |
 | `setFolderAccess(ctx, args)` | mutation | Set or clear folder-level access rules |
+| `getFolderRule(ctx, args)` | query | Get access rule for a folder |
+| `listFolderRules(ctx, args)` | query | List all folder access rules |
 | `setConfig(ctx, args)` | mutation | Update component configuration |
 | `getConfig(ctx)` | query | Read current configuration |
 | `getUsageStats(ctx, args)` | query | Get total files and bytes for a user |
-| `cleanupExpired(ctx, args)` | action | Delete expired file records |
+| `cleanupExpired(ctx, args)` | action | Delete expired file records (and optionally remote files) |
 | `handleCallback(ctx, args)` | action | Handle an UploadThing webhook |
+
+### Configuration options
+
+| Option | Type | Description |
+|---|---|---|
+| `uploadthingApiKey` | `string` | API key for webhook verification and remote deletion |
+| `defaultTtlMs` | `number` | Default TTL in milliseconds for all files |
+| `ttlByMimeType` | `Record<string, number>` | TTL overrides by MIME type |
+| `ttlByFileType` | `Record<string, number>` | TTL overrides by custom file type |
+| `deleteRemoteOnExpire` | `boolean` | Delete files from UploadThing servers on expiration |
+| `deleteBatchSize` | `number` | Max files per cleanup batch (default: 100) |
 
 ### `registerRoutes(http, component, options?)`
 
