@@ -105,6 +105,63 @@ export const listFiles = query({
   },
 });
 
+export const listAllFiles = query({
+  args: {
+    viewerUserId: v.optional(v.string()),
+    mimeType: v.optional(v.string()),
+    tag: v.optional(v.string()),
+    folder: v.optional(v.string()),
+    includeExpired: v.optional(v.boolean()),
+    limit: v.optional(v.number()),
+  },
+  returns: v.array(fileDocValidator),
+  handler: async (ctx, args) => {
+    const base = args.folder !== undefined
+      ? ctx.db.query("files").withIndex("by_folder", (q) => q.eq("folder", args.folder))
+      : ctx.db.query("files");
+
+    const results: Doc<"files">[] = [];
+    const now = Date.now();
+    const limit = args.limit ?? 50;
+    const folderCache = new Map<string, AccessRule | undefined>();
+
+    for await (const file of base.order("desc")) {
+      if (!args.includeExpired && file.expiresAt !== undefined && file.expiresAt <= now) {
+        continue;
+      }
+      if (args.mimeType && file.mimeType !== args.mimeType) {
+        continue;
+      }
+      if (args.tag && !file.tags?.includes(args.tag)) {
+        continue;
+      }
+
+      let folderRule;
+      if (file.folder) {
+        if (folderCache.has(file.folder)) {
+          folderRule = folderCache.get(file.folder);
+        } else {
+          folderRule = await getFolderRule(ctx.db, file.folder);
+          folderCache.set(file.folder, folderRule);
+        }
+      }
+      const allowed = canAccess({
+        ownerId: file.userId,
+        viewerId: args.viewerUserId,
+        fileRule: file.access,
+        folderRule,
+      });
+
+      if (!allowed) continue;
+
+      results.push(file);
+      if (results.length >= limit) break;
+    }
+
+    return results;
+  },
+});
+
 export const getFolderRuleByFolder = query({
   args: {
     folder: v.string(),

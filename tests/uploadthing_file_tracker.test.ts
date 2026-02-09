@@ -400,6 +400,96 @@ describe("uploadthing file tracker", () => {
     expect(result.deletedCount).toBe(1);
   });
 
+  test("listAllFiles returns cross-user results with access control", async () => {
+    const t = makeTest();
+
+    // User A: public file
+    await t.mutation("files:upsertFile", {
+      file: { ...baseFile, key: "all_1" },
+      userId: "user_a",
+      options: { folder: "gallery" },
+    });
+    await t.mutation("files:setFileAccess", {
+      key: "all_1",
+      access: { visibility: "public" },
+    });
+
+    // User B: public file
+    await t.mutation("files:upsertFile", {
+      file: { ...baseFile, key: "all_2" },
+      userId: "user_b",
+      options: { folder: "gallery" },
+    });
+    await t.mutation("files:setFileAccess", {
+      key: "all_2",
+      access: { visibility: "public" },
+    });
+
+    // User C: private file (should not appear for viewer)
+    await t.mutation("files:upsertFile", {
+      file: { ...baseFile, key: "all_3" },
+      userId: "user_c",
+      options: { folder: "gallery" },
+    });
+    await t.mutation("files:setFileAccess", {
+      key: "all_3",
+      access: { visibility: "private" },
+    });
+
+    // Cross-user query as a viewer
+    const allPublic = await t.query("queries:listAllFiles", {
+      viewerUserId: "viewer",
+      folder: "gallery",
+    });
+
+    expect(allPublic.length).toBe(2);
+    const keys = allPublic.map((f: any) => f.key).sort();
+    expect(keys).toEqual(["all_1", "all_2"]);
+
+    // Owner can see their own private file
+    const asOwner = await t.query("queries:listAllFiles", {
+      viewerUserId: "user_c",
+      folder: "gallery",
+    });
+    expect(asOwner.length).toBe(3);
+  });
+
+  test("listAllFiles filters by tag and mimeType", async () => {
+    const t = makeTest();
+
+    await t.mutation("files:upsertFile", {
+      file: { ...baseFile, key: "filter_1", mimeType: "image/jpeg" },
+      userId: "owner",
+      options: { tags: ["photo"] },
+    });
+    await t.mutation("files:setFileAccess", {
+      key: "filter_1",
+      access: { visibility: "public" },
+    });
+
+    await t.mutation("files:upsertFile", {
+      file: { ...baseFile, key: "filter_2", mimeType: "image/png" },
+      userId: "owner",
+      options: { tags: ["screenshot"] },
+    });
+    await t.mutation("files:setFileAccess", {
+      key: "filter_2",
+      access: { visibility: "public" },
+    });
+
+    const jpegOnly = await t.query("queries:listAllFiles", {
+      mimeType: "image/jpeg",
+    });
+    expect(jpegOnly.length).toBe(1);
+    expect(jpegOnly[0]?.key).toBe("filter_1");
+
+    const tagOnly = await t.query("queries:listAllFiles", {
+      tag: "screenshot",
+    });
+    expect(tagOnly.length).toBe(1);
+    expect(tagOnly[0]?.key).toBe("filter_2");
+  });
+
   test("deleteFiles removes specific records and returns count", async () => {
     const t = makeTest();
 

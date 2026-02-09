@@ -198,6 +198,42 @@ export type ComponentApi<Name extends string | undefined = string | undefined> =
         } | null,
         Name
       >;
+      listAllFiles: FunctionReference<
+        "query",
+        "internal",
+        {
+          folder?: string;
+          includeExpired?: boolean;
+          limit?: number;
+          mimeType?: string;
+          tag?: string;
+          viewerUserId?: string;
+        },
+        Array<{
+          _creationTime: number;
+          _id: string;
+          access?: {
+            allowUserIds?: Array<string>;
+            denyUserIds?: Array<string>;
+            visibility: "public" | "private" | "restricted";
+          };
+          customId?: string;
+          expiresAt?: number;
+          fileType?: string;
+          folder?: string;
+          key: string;
+          metadata?: any;
+          mimeType: string;
+          name: string;
+          replacedAt?: number;
+          size: number;
+          tags?: Array<string>;
+          uploadedAt: number;
+          url: string;
+          userId: string;
+        }>,
+        Name
+      >;
       listFiles: FunctionReference<
         "query",
         "internal",
