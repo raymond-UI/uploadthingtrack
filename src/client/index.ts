@@ -119,6 +119,23 @@ export class UploadThingFiles {
   }
 
   /**
+   * List files across all users with optional filters and access control.
+   */
+  async listAllFiles(
+    ctx: QueryCtx,
+    args: {
+      viewerUserId?: string;
+      mimeType?: string;
+      tag?: string;
+      folder?: string;
+      includeExpired?: boolean;
+      limit?: number;
+    } = {},
+  ) {
+    return await ctx.runQuery(this.component.queries.listAllFiles, args);
+  }
+
+  /**
    * Get the access rule for a specific folder, or `null` if none is set.
    */
   async getFolderRule(
