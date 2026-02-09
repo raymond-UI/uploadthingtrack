@@ -247,12 +247,17 @@ export class UploadThingFiles {
    * local records. If remote deletion fails, local records are preserved
    * so the next run can retry. Check `remoteDeleteFailed` and
    * `remoteDeleteError` in the return value for details.
+   *
+   * Pass `apiKey` to provide the UploadThing API key directly (e.g.
+   * from `process.env.UPLOADTHING_API_KEY`). Falls back to the key
+   * stored via `setConfig`.
    */
   async cleanupExpired(
     ctx: ActionCtx,
     args: {
       batchSize?: number;
       dryRun?: boolean;
+      apiKey?: string;
     } = {},
   ) {
     return await ctx.runAction(this.component.cleanup.cleanupExpired, args);
