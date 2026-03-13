@@ -1,6 +1,12 @@
 # @mzedstudio/uploadthingtrack
 
+[![Convex Component](https://www.convex.dev/components/badge/mzedstudio/uploadthingtrack)](https://www.convex.dev/components/mzedstudio/uploadthingtrack)
+[![npm version](https://img.shields.io/npm/v/@mzedstudio/uploadthingtrack)](https://www.npmjs.com/package/@mzedstudio/uploadthingtrack)
+[![npm downloads](https://img.shields.io/npm/dw/@mzedstudio/uploadthingtrack)](https://www.npmjs.com/package/@mzedstudio/uploadthingtrack)
+
 A [Convex component](https://docs.convex.dev/components) for tracking UploadThing files with access control, expiration, and webhook verification.
+
+[Live Demo](https://ephemera-upt-demo.vercel.app/)
 
 UploadThing handles file storage. This component adds the metadata layer: **who uploaded what**, **who can see it**, and **when it expires**.
 
